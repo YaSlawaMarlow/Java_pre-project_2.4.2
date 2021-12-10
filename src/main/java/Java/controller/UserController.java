@@ -17,7 +17,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/")
+    @GetMapping(value = "/")
     public String allUsers(Model model) {
         model.addAttribute("getUsers", userService.getAllUsers());
         return "/all";
@@ -57,47 +57,4 @@ public class UserController {
         userService.deleteUser(id);
         return "redirect:/";
     }
-//
-//    @GetMapping("/")
-//    public String getAllUsers(Model model) {
-//        List<User> allUsers = userService.getAllUsers();
-//        model.addAttribute("user", allUsers);
-//        return "userAll";
-//    }
-//
-//    @GetMapping("/add-new-user")
-//    public String addUser(Model model) {
-//        model.addAttribute("user", new User());
-//        return "userInfo";
-//    }
-//
-//    @PostMapping("/")
-//    public String saveUser(@ModelAttribute("user") User user) {
-//        userService.saveUser(user);
-//        return "redirect:/";
-//    }
-//
-//    @GetMapping("/{id}/update")
-//    public String updateInfo(@PathVariable(name = "id") Long id, Model model) {
-//        model.addAttribute("user", userService.getUser(id));
-//        return "userUpdate";
-//    }
-//
-//    @PatchMapping("/")
-//    public String updateUser(@ModelAttribute("user") User user) {
-//        userService.updateUser(user);
-//        return "redirect:/";
-//    }
-//
-//    @GetMapping("/{id}/delete")
-//    public String deleteInfo(@PathVariable(name = "id") Long id, Model model) {
-//        model.addAttribute("user", userService.getUser(id));
-//        return "userDelete";
-//    }
-//
-//    @DeleteMapping("/")
-//    public String deleteUser(@PathVariable("id") int id) {
-//        userService.deleteUser(id);
-//        return "redirect:/";
-//    }
 }

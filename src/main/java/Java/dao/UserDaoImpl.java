@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import javax.persistence.*;
 
-@Transactional
 @Repository
 public class UserDaoImpl implements UserDao {
 
@@ -18,6 +17,7 @@ public class UserDaoImpl implements UserDao {
         return this.em;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> getAllUsers() {
         return em.createQuery("SELECT user from User user", User.class).getResultList();
@@ -29,20 +29,19 @@ public class UserDaoImpl implements UserDao {
         em.persist(user);
     }
 
+    @Transactional
     @Override
     public void updateUser(User user) {
         em.merge(user);
     }
 
+    @Transactional
     @Override
     public void deleteUser(int id) {
-//        em.remove(em.find(User.class, user.getId()));
-        getEntityManager()
-                .createQuery("DELETE FROM User WHERE id=: id")
-                .setParameter("id", id)
-                .executeUpdate();
+        em.remove(em.find(User.class, id));
     }
 
+    @Transactional (readOnly = true)
     @Override
     public User getUser(int id) {
         return em.find(User.class, id);
