@@ -5,7 +5,7 @@
     <title>Edit person</title>
 </head>
 <body>
-<form th:method="PATCH" th:action="@{/{id}(id=${user.getId()})}" th:object="${user}">
+<form th:method="PATCH" th:action="@{/admin/edit/}" th:object="${user}">
     <label for="name">Name: </label>
     <input type="text" th:field="*{name}" id="name"/>
     <br><br>
@@ -15,7 +15,14 @@
     <label for="age">Age: </label>
     <input type="text" th:field="*{age}" id="age"/>
     <br><br>
+    <th>Role</th>
+    <input type="checkbox" name="checkBoxRoles" value="ROLE_USER"/>USER
+    <input type="checkbox" name="checkBoxRoles" value="ROLE_ADMIN"/>ADMIN
+    <br><br>
     <input type="submit" value="Update"/>
+</form>
+<form style="text-align: center" th:action="@{/logout}">
+    <button>Logout!</button>
 </form>
 </body>
 </html>

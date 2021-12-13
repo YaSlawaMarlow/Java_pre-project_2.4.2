@@ -17,33 +17,34 @@ public class UserDaoImpl implements UserDao {
         return this.em;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<User> getAllUsers() {
         return em.createQuery("SELECT user from User user", User.class).getResultList();
     }
 
-    @Transactional
     @Override
     public void saveUser(User user) {
         em.persist(user);
     }
 
-    @Transactional
     @Override
     public void updateUser(User user) {
         em.merge(user);
     }
 
-    @Transactional
     @Override
     public void deleteUser(int id) {
         em.remove(em.find(User.class, id));
     }
 
-    @Transactional (readOnly = true)
     @Override
     public User getUser(int id) {
         return em.find(User.class, id);
+    }
+
+    @Override
+    public User getUserByName(String name) {
+        return em.createQuery("select u from User u where u.name=:name",
+                User.class).setParameter("name", name).getSingleResult();
     }
 }

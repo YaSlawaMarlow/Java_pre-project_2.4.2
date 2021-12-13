@@ -1,79 +1,105 @@
 package Java.controller;
 
+import Java.model.Role;
 import Java.model.User;
+import Java.service.RoleService;
 import Java.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Controller
 public class UserController {
 
-    public UserService userService;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
-    @GetMapping(value = "/")
-    public String allUsers(Model model) {
-        model.addAttribute("getUsers", userService.getAllUsers());
-        return "/all";
+    @GetMapping("/")
+    public String loginPage() {
+        return "redirect:/login";
     }
 
-    @GetMapping("/{id}")
-    public String getUser(@PathVariable("id") int id, Model model) {
-        model.addAttribute("user", userService.getUser(id));
+    /////////////////////////////////////////////////////////////////////
+
+    @GetMapping("/user")
+    public String userPage(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
+        model.addAttribute("roles", user.getRoles());
         return "/show";
     }
 
-    @GetMapping("/new")
-    public String saveUser(@ModelAttribute("user") User user) {
+    @GetMapping(value = "/user/{id}")
+    public String userById(@PathVariable("id") int id, Model model) {
+        User user = userService.getUser(id);
+        model.addAttribute("user", user);
+        model.addAttribute("role", user.getRoles());
+        return "show";
+    }
+
+    @DeleteMapping("/user/delete/{id}")
+    public String deleteU(@PathVariable("id") int id) {
+        userService.deleteUser(id);
+        return "redirect:/logout";
+    }
+
+    ////////////////////
+
+    @GetMapping(value = "/admin")
+    public String allUsers(Model model) {
+        model.addAttribute("getUsers", userService.getAllUsers());
+        return "all";
+    }
+
+    @GetMapping("/admin/new")
+    public String saveUser(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", roleService.getRoles());///
         return "new";
     }
 
-    @PostMapping
-    public String create(@ModelAttribute("user") User user) {
+    @PostMapping("/admin/add")
+    public String create(@ModelAttribute("user") User user, @RequestParam(value = "checkBoxRoles") String[] checkBoxRoles) {
+        Set<Role> roleSet = new HashSet<>();
+        for (String role : checkBoxRoles) {
+            roleSet.add(roleService.getRoleByName(role));
+        }
+        user.setRoles(roleSet);
         userService.saveUser(user);
-        return "redirect:/";
+        return "redirect:/admin";
     }
 
-    @GetMapping("/{id}/edit")
+    @GetMapping("/admin/edit/{id}")
     public String edit(@PathVariable("id") int id, Model model) {
         model.addAttribute("user", userService.getUser(id));
-        return "/edit";
+        model.addAttribute("roles", roleService.getRoles());///
+        return "edit";
     }
 
-    @PostMapping("/{id}")
-    public String update(@ModelAttribute("user") User user, @PathVariable("id") int id) {
+    @PatchMapping("/admin/edit")
+    public String update(@ModelAttribute("user") User user, @RequestParam(value = "checkBoxRoles") String[] checkBoxRoles) {
+        Set<Role> roleSet = new HashSet<>();
+        for (String role : checkBoxRoles) {
+            roleSet.add(roleService.getRoleByName(role));
+        }
+        user.setRoles(roleSet);
         userService.updateUser(user);
-        return "redirect:/";
+        return "redirect:/admin";
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping("/admin/delete/{id}")
     public String delete(@PathVariable("id") int id) {
         userService.deleteUser(id);
-        return "redirect:/";
-    }
-
-    @RequestMapping(value = "hello", method = RequestMethod.GET)
-    public String printWelcome(ModelMap model) {
-        List<String> messages = new ArrayList<>();
-        messages.add("Hello!");
-        messages.add("I'm Spring MVC-SECURITY application");
-        messages.add("5.2.0 version by sep'19 ");
-        model.addAttribute("messages", messages);
-        return "hello";
-    }
-
-    @RequestMapping(value = "login", method = RequestMethod.GET)
-    public String loginPage() {
-        return "login";
+        return "redirect:/admin";
     }
 }
